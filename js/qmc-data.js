@@ -18,7 +18,7 @@ const SKILL_TABS = [
   {id:'jungle',name:'Jungle Tab'},{id:'arctic',name:'Arctic Tab'},{id:'p100',name:"President's Hundred Tab"}
 ];
 const TAB_NAME = {}; SKILL_TABS.forEach(t=>TAB_NAME[t.id]=t.name);
-const COMBAT_TABS = ['ranger','sf','sapper'];
+const COMBAT_TABS = ['ranger','sf','sapper','jungle','arctic','p100'];
 
 const ID_BADGES = [
   {id:'ds',name:'Drill Sergeant Identification Badge'},
@@ -331,24 +331,24 @@ const UNIFORMS = {
   ocp:{label:'OCP (Standard)', base:150,
     skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true, foreignAward:{max:1},
     skillBadges:{max:4, comboGroups:[[1,2],[3]]}, idBadges:{max:2, allowed:['ds','instr','rec','mg']}, watch:false,
-    rules:['Divisional Patch, Ranktab &amp; Nametape included free','Skill Tabs — max 2 (Ranger / SF / Sapper)','CSIB authorized','1 Foreign Award slot','Skill Badges — max 4 total, only 1 from Groups 1–2 combined, 1 from Group 3','Driver and Mechanic Badge requires a Cavalry-designated unit; Marksmanship Badge open to anyone','ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)']},
+    rules:['Divisional Patch, Ranktab &amp; Nametape included free','Skill Tabs — max 2','CSIB authorized','1 Foreign Award slot','Skill Badges — max 4 total, only 1 from Groups 1–2 combined, 1 from Group 3','Driver and Mechanic Badge requires a Cavalry-designated unit; Marksmanship Badge open to anyone','ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)']},
   rolledOcp:{label:'Rolled OCP', base:150,
     skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true, foreignAward:{max:1},
     skillBadges:{max:4, comboGroups:[[1,2,3]]}, idBadges:{max:2, allowed:['ds','instr','rec','mg']}, watch:true,
     rules:['Same as Standard OCP, plus a Watch is authorized','Skill Badges — max 4 total, only 1 combined from Groups 1–3','Driver and Mechanic Badge requires a Cavalry-designated unit; Marksmanship Badge open to anyone','ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)']},
   acs:{label:'Army Combat Shirt (ACS)', base:150,
     skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true, watch:true,
-    rules:['Divisional Patch &amp; CSIB authorized','Skill Tabs — max 2 (Ranger / SF / Sapper)','Watch authorized if sleeves rolled','No ribbons, skill badges, or ID badges on this uniform']},
+    rules:['Divisional Patch &amp; CSIB authorized','Skill Tabs — max 2','Watch authorized if sleeves rolled','No ribbons, skill badges, or ID badges on this uniform']},
   blackouts:{label:'ASOC Blackouts', base:150,
     skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true,
-    rules:['Divisional Patch &amp; CSIB authorized','Skill Tabs — max 2 (Ranger / SF / Sapper)','No watch, ribbons, skill badges, or ID badges']},
+    rules:['Divisional Patch &amp; CSIB authorized','Skill Tabs — max 2','No watch, ribbons, skill badges, or ID badges']},
   customPt:{label:'Custom PT', base:150, watch:true,
     rules:['Divisional Patch, Nametape included free','Watch authorized','No badges, tabs, or ribbons on this uniform']},
   fleece:{label:'Army Fleece (Winter Only)', base:150,
     rules:['Ranktab &amp; Nametape only — no other items authorized']},
   tigerstripes:{label:'ASF Tiger Stripes', base:150,
     skillTabs:{max:2, allowed:'all'}, skillBadges:{max:2, comboGroups:null},
-    rules:['Divisional Patch &amp; Nametape included free','Skill Tabs — max 2 (any)','Skill Badges — max 2 (Groups 1–5 all eligible)']},
+    rules:['Divisional Patch &amp; Nametape included free','Skill Tabs — max 2','Skill Badges — max 2 (Groups 1–5 all eligible)']},
   agsu:{label:'AGSU (Class A)', base:150,
     skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true, foreignUnlimited:true,
     skillBadges:{max:4, comboGroups:[[1,2,3]]}, idBadges:{max:2, allowed:['mp','cid','as','jcs']},
