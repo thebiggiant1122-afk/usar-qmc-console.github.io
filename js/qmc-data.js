@@ -351,9 +351,9 @@ const UNIFORMS = {
     rules:['Divisional Patch &amp; Nametape included free','Skill Tabs — max 2','Skill Badges — max 2 (Groups 1–5 all eligible)']},
   agsu:{label:'AGSU (Class A)', base:150,
     skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true, foreignUnlimited:true,
-    skillBadges:{max:4, comboGroups:[[1,2,3]]}, idBadges:{max:2, allowed:['mp','cid','as','jcs']},
+    skillBadges:{max:4, comboGroups:[[1,2,3]]}, idBadges:{max:2, allowed:['mp','cid','as','jcs','rec','instr']},
     ribbons:{max:null, offsetRows:2, offsetPerRow:2}, unitCitations:true, stripesBars:true,
-    rules:['Divisional Patch, Officer Branch Insignia, RDI &amp; Shoulderloop RDI, ROKA Jump Wings all included per guide (free)','Skill Tabs — max 2 (Ranger / SF / Sapper)','CSIB authorized','Skill Badges — max 4, only 1 combined from Groups 1–3 (Groups 4–5 not restricted by this combo rule)','ID Badges — max 2 (MP, CID, Army Staff, Joint Chiefs)','Ribbons — unlimited (space permitting); max 2 rows offset, 2 ribbons per offset row','Service Stripes (enlisted only, max 8) &amp; Overseas Bars (max 8) — R$3 each','Unit Citations correlated to current division — free']},
+    rules:['Divisional Patch, Officer Branch Insignia, RDI &amp; Shoulderloop RDI, ROKA Jump Wings all included per guide (free)','Skill Tabs — max 2','CSIB authorized','Skill Badges — max 4, only 1 combined from Groups 1–3 (Groups 4–5 not restricted by this combo rule)','ID Badges — max 2','Ribbons — unlimited (space permitting); max 2 rows offset, 2 ribbons per offset row','Service Stripes (enlisted only, max 8) &amp; Overseas Bars (max 8) — R$3 each','Unit Citations correlated to current division — free']},
   classB:{label:'Class B', base:150, comboSkill:true, ribbons:{max:6}, watch:true,
     rules:['RDI included per guide (free)','Ribbons — max 6, your choice of which','1 combined Skill Badge OR Skill Tab (metal replica variation)','Watch authorized if short sleeve']},
   classBSweater:{label:'Class B Sweater (Winter Only)', base:150,
@@ -361,9 +361,9 @@ const UNIFORMS = {
   classC:{label:'Class C', base:150,
     skillTabsMetal:{max:1, allowed:'all'}, csib:true, foreignUnlimited:true,
     skillBadges:{max:4, comboGroups:[[1,2,3]]}, unitCitations:true,
-    idBadgesConditional:{max:2, allowed:['mp','cid','as','jcs']},
+    idBadgesConditional:{max:2, allowed:['mp','cid','as','jcs','rec','instr']},
     ribbons:{max:null, offsetRows:2, offsetPerRow:2},
-    rules:['RDI &amp; Unit Citations included per guide (free)','Skill Tab — max 1 (metal replica variation)','CSIB authorized','Skill Badges — max 4, only 1 combined from Groups 1–3 (Groups 4–5 not restricted by this combo rule)','ID Badges — max 2 (MP, CID, Army Staff, Joint Chiefs) ONLY IF no CSIB is worn','Ribbons — unlimited (space permitting); max 2 rows offset, 2 ribbons per offset row']},
+    rules:['RDI &amp; Unit Citations included per guide (free)','Skill Tab — max 1 (metal replica variation)','CSIB authorized','Skill Badges — max 4, only 1 combined from Groups 1–3 (Groups 4–5 not restricted by this combo rule)','ID Badges — max 2 ONLY IF no CSIB is worn','Ribbons — unlimited (space permitting); max 2 rows offset, 2 ribbons per offset row']},
   icvcTanker:{label:'ICVC — Tanker', base:150,
     rules:['Nametape &amp; Ranktab only — no other items authorized']},
   icvcPilot:{label:'ICVC — Pilot', base:150, aviatorOnly:true,
@@ -602,12 +602,12 @@ function generateFormat(){
   const badgesList = [...state.skillBadges].map(id=>badgeDisplayName(id));
   if (state.csib) badgesList.unshift('Combat Service Identification Badge (CSIB)');
   const idList = [...state.idBadges].map(id=>idBadgeDisplayName(id));
-  const citationList = [...state.unitCitations].map(id=>CITATION_NAME[id]);
   if (state.uniform==='classB' && state.classBItem) badgesList.push(classBItemName(state.classBItem));
   const allBadges = [...tabsList, ...badgesList, ...idList, ...citationList];
 
   const chosenRibbons = [...state.ribbons].map(id=>RIBBON_NAME[id]);
-  const ribbonsList = [...FREE_DEFAULT_RIBBONS, ...chosenRibbons];
+  const automaticRibbons = cfg.ribbons && cfg.ribbons.max == null ? FREE_DEFAULT_RIBBONS: [];
+  const ribbonsList = [...automaticRibbons, ...chosenRibbons];
 
   const miscItems=[];
   if (state.watch) miscItems.push('Watch');
@@ -615,6 +615,7 @@ function generateFormat(){
   if (state.serviceStripes>0) miscItems.push(state.serviceStripes+' Service Stripe'+(state.serviceStripes>1?'s':''));
   if (state.overseasBars>0) miscItems.push(state.overseasBars+' Overseas Bar'+(state.overseasBars>1?'s':''));
   [...state.foreign].forEach(id=>miscItems.push(FOREIGN_NAME[id]));
+  [...state.unitCitations].forEach(id=>miscItems.push(CITATION_NAME[id]));
 
   const offsetParts=[];
   if (state.offsetRibbon) offsetParts.push('Ribbon');

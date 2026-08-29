@@ -268,17 +268,48 @@ function renderRibbonsTab(){
     return;
   }
   const {invalid} = validate();
-  html += '<div class="group-block"><h4>Included Automatically <span class="cnt">free — default E2+ ribbons</span></h4><div class="free-row">'+
-    FREE_DEFAULT_RIBBONS.map(n=>'<div class="free-chip">'+n+'</div>').join('')+'</div></div>';
+
+  if (cfg.ribbons.max == null){
+    html += '<div class="group-block"><h4>Included Automatically <span class="cnt">free — default E2+ ribbons</span></h4><div class="free-row">'+
+      FREE_DEFAULT_RIBBONS.map(n=>'<div class="free-chip">'+n+'</div>').join('')+
+      '</div></div>';
+  } else {
+    html += '<div class="group-block"><h4>Automatic Ribbons <span class="cnt">not counted toward the '+cfg.ribbons.max+' ribbon maximum</span></h4>'+
+      '<div class="empty-note">Default E2+ ribbons are not automatically included on this uniform. Select any of them manually below if authorized.</div></div>';
+  }
+
   const maxLabel = cfg.ribbons.max!=null ? (' / '+cfg.ribbons.max) : '';
   html += '<div class="group-block"><h4>Selectable Ribbons <span class="cnt">'+state.ribbons.size+maxLabel+'</span></h4>';
   RIBBON_CATS.forEach(cat=>{
-    const items = RIBBONS.filter(r=>r.cat===cat && !r.freeDefault);
+    const items = RIBBONS.filter(r=>{
+    if (r.cat !== cat) return false;
+    if (cfg.ribbons.max != null) return true;
+    return !r.freeDefault;
+    });
+
     if (!items.length) return;
     html += '<div style="margin-bottom:8px;"><div style="font-size:10px;color:var(--tan-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">'+cat+'</div><div class="chip-wrap">';
     items.forEach(r=>{
-      const isDeploymentFree = r.id==='gwotE' && (state.csib || [...state.skillBadges].some(b=>['cib','cmb','cab'].includes(b)));
-      html += chip('ribbon:'+r.id, r.name, state.ribbons.has(r.id), invalid.ribbons.has(r.id), isDeploymentFree?'FREE':'R$3', false);
+      const isDeploymentFree =
+        r.id === 'gwotE' &&
+        (state.csib || [...state.skillBadges].some(b=>['cib','cmb','cab'].includes(b)));
+
+      const isAutomaticDefault =
+        r.freeDefault && cfg.ribbons.max == null;
+
+      const priceLabel =
+        isAutomaticDefault ? 'FREE' :
+        isDeploymentFree ? 'FREE' :
+        'R$3';
+
+      html += chip(
+        'ribbon:'+r.id,
+        r.name,
+        state.ribbons.has(r.id),
+        invalid.ribbons.has(r.id),
+        priceLabel,
+        false
+      );
     });
     html += '</div></div>';
   });
@@ -313,6 +344,177 @@ function renderTabContent(){
   else renderForeignTab();
 }
 
+/* ---------------------------------------------------------------
+   UNIFORM CHANGE CLEANUP
+   Keeps anything still authorized on the newly selected uniform,
+   while removing items that are no longer authorized.
+---------------------------------------------------------------- */
+function sanitizeForUniform(){
+  const cfg = UNIFORMS[state.uniform];
+
+  // Skill Tabs
+  if (cfg.skillTabs){
+    if (cfg.skillTabs.allowed !== 'all'){
+      state.skillTabs = new Set(
+        [...state.skillTabs].filter(id => cfg.skillTabs.allowed.includes(id))
+      );
+    }
+    // Remove excess tabs when the new uniform has a lower maximum.
+    if (state.skillTabs.size > cfg.skillTabs.max){
+      state.skillTabs = new Set([...state.skillTabs].slice(0, cfg.skillTabs.max));
+    }
+  } else if (cfg.skillTabsMetal){
+    if (state.skillTabs.size > cfg.skillTabsMetal.max){
+      state.skillTabs = new Set([...state.skillTabs].slice(0, cfg.skillTabsMetal.max));
+    }
+  } else if (!cfg.comboSkill){
+    state.skillTabs.clear();
+  }
+
+  // Skill Badges
+  if (cfg.skillBadges){
+    state.skillBadges = new Set(
+      [...state.skillBadges].filter(id => BADGE_NAME[id])
+    );
+
+    // ICVC Pilot restriction
+    if (cfg.aviatorOnly){
+      state.skillBadges = new Set(
+        [...state.skillBadges].filter(id => id === 'aab' || id === 'avnb')
+      );
+    }
+
+    // DMB restriction
+    if (!isDmbEligible()){
+      state.skillBadges.delete('dmb');
+    }
+
+    // Remove badges that exceed the new uniform's maximum.
+    if (state.skillBadges.size > cfg.skillBadges.max){
+      state.skillBadges = new Set(
+        [...state.skillBadges].slice(0, cfg.skillBadges.max)
+      );
+    }
+
+    // Enforce combined group restrictions.
+    if (cfg.skillBadges.comboGroups){
+      cfg.skillBadges.comboGroups.forEach(groupList=>{
+        const matches = [...state.skillBadges]
+          .filter(id => groupList.includes(BADGE_GROUP[id]));
+
+        // Keep the first selected badge and remove the rest.
+        matches.slice(1).forEach(id => {
+          state.skillBadges.delete(id);
+          delete state.badgeTiers[id];
+        });
+      });
+    }
+  } else if (!cfg.comboSkill && !cfg.aviatorOnly){
+    state.skillBadges.clear();
+    state.badgeTiers = {};
+  }
+
+  // ICVC Pilot — still keep only valid badges
+  if (cfg.aviatorOnly){
+    [...state.skillBadges].forEach(id=>{
+      if (id !== 'aab' && id !== 'avnb'){
+        state.skillBadges.delete(id);
+        delete state.badgeTiers[id];
+      }
+    });
+  }
+
+  // ID Badges
+  if (cfg.idBadges){
+    state.idBadges = new Set(
+      [...state.idBadges].filter(id => cfg.idBadges.allowed.includes(id))
+    );
+
+    if (state.idBadges.size > cfg.idBadges.max){
+      state.idBadges = new Set(
+        [...state.idBadges].slice(0, cfg.idBadges.max)
+      );
+    }
+  } else if (cfg.idBadgesConditional){
+    if (state.csib){
+      // CSIB and conditional ID badges cannot coexist.
+      state.idBadges.clear();
+      state.idBadgeTiers = {};
+    } else {
+      state.idBadges = new Set(
+        [...state.idBadges].filter(id =>
+          cfg.idBadgesConditional.allowed.includes(id)
+        )
+      );
+
+      if (state.idBadges.size > cfg.idBadgesConditional.max){
+        state.idBadges = new Set(
+          [...state.idBadges].slice(0, cfg.idBadgesConditional.max)
+        );
+      }
+    }
+  } else {
+    state.idBadges.clear();
+    state.idBadgeTiers = {};
+  }
+
+  // CSIB — preserve it if the new uniform still allows it.
+  if (!cfg.csib){
+    state.csib = false;
+  }
+
+  // Ribbons
+  // IMPORTANT: manually selected ribbons are preserved if the new
+  // uniform allows ribbons. Automatic/default ribbons are handled
+  // separately by generateFormat().
+  if (!cfg.ribbons){
+    state.ribbons.clear();
+  } else if (cfg.ribbons.max != null && state.ribbons.size > cfg.ribbons.max){
+    state.ribbons = new Set(
+      [...state.ribbons].slice(0, cfg.ribbons.max)
+    );
+  }
+
+  // Foreign Devices
+  if (!cfg.foreignAward && !cfg.foreignUnlimited){
+    state.foreign.clear();
+  } else if (cfg.foreignAward && state.foreign.size > cfg.foreignAward.max){
+    state.foreign = new Set(
+      [...state.foreign].slice(0, cfg.foreignAward.max)
+    );
+  }
+
+  // Unit Citations
+  if (!cfg.unitCitations){
+    state.unitCitations.clear();
+  }
+
+  // Service / Overseas bars
+  if (!cfg.stripesBars){
+    state.serviceStripes = 0;
+    state.overseasBars = 0;
+  }
+
+  // Watch
+  if (!cfg.watch){
+    state.watch = false;
+  }
+
+  // Class B's combined metal item only exists on Class B.
+  if (state.uniform !== 'classB'){
+    state.classBItem = '';
+  }
+
+  // Remove stale tier information.
+  Object.keys(state.badgeTiers).forEach(id=>{
+    if (!state.skillBadges.has(id)) delete state.badgeTiers[id];
+  });
+
+  Object.keys(state.idBadgeTiers).forEach(id=>{
+    if (!state.idBadges.has(id)) delete state.idBadgeTiers[id];
+  });
+}
+
 function renderAll(){
   renderPrice();
   renderAccessories();
@@ -329,8 +531,10 @@ function renderAll(){
 ---------------------------------------------------------------- */
 document.getElementById('uniformSelect').addEventListener('change', e=>{
   state.uniform = e.target.value;
+  sanitizeForUniform();
   renderAll();
 });
+
 
 document.getElementById('watchToggle').addEventListener('click', ()=>{
   const cfg = UNIFORMS[state.uniform];
