@@ -603,7 +603,7 @@ function generateFormat(){
   if (state.csib) badgesList.unshift('Combat Service Identification Badge (CSIB)');
   const idList = [...state.idBadges].map(id=>idBadgeDisplayName(id));
   if (state.uniform==='classB' && state.classBItem) badgesList.push(classBItemName(state.classBItem));
-  const allBadges = [...tabsList, ...badgesList, ...idList, ...citationList];
+  const allBadges = [...tabsList, ...badgesList, ...idList];
 
   const chosenRibbons = [...state.ribbons].map(id=>RIBBON_NAME[id]);
   const automaticRibbons = cfg.ribbons && cfg.ribbons.max == null ? FREE_DEFAULT_RIBBONS: [];
