@@ -9,6 +9,15 @@ function chip(idOrKey, label, selected, isInvalid, priceLabel, locked){
   return '<div class="'+cls.join(' ')+'" data-id="'+idOrKey+'">'+label+(priceLabel?'<span class="price-tag">'+priceLabel+'</span>':'')+'</div>';
 }
 
+function escapeHtml(value){
+  return String(value ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
 function renderUniformSelect(){
   const sel = document.getElementById('uniformSelect');
   sel.innerHTML = Object.entries(UNIFORMS).map(([k,v])=>'<option value="'+k+'"'+(k===state.uniform?' selected':'')+'>'+v.label+'</option>').join('');
@@ -92,8 +101,26 @@ function renderBadgesTab(){
 
   // CSIB
   if (cfg.csib){
-    html += '<div class="group-block"><h4>Combat Service Identification Badge</h4><div class="chip-wrap">'+
-      chip('csib','Combat Service Identification Badge (CSIB)', state.csib, false, 'R$3', false)+'</div></div>';
+    html += '<div class="group-block"><h4>Combat Service Identification Badge</h4>';
+
+    html += '<div class="acc-row">';
+    html += '<div class="a-label">Wear CSIB <span class="acc-note">R$3</span></div>';
+    html += '<div class="toggle '+(state.csib?'on':'')+'" id="csibToggle">';
+    html += '<div class="knob"></div>';
+    html += '</div>';
+    html += '</div>';
+
+    if (state.csib){
+      html += '<div style="margin-top:10px;">';
+      html += '<label for="csibType">CSIB Type <span style="color:var(--red)">*</span></label>';
+      html += '<input type="text" id="csibType" value="'+
+        escapeHtml(state.csibType)+
+        '" placeholder="e.g. NATO, 16th, 82nd ABD">';
+      html += '<div class="acc-note" style="margin-top:-6px;">Required — enter the unit/type only. “CSIB” is added automatically.</div>';
+      html += '</div>';
+    }
+
+    html += '</div>';
   }
 
   // Skill Badges by group (Marksmanship is open to anyone; Driver/Mechanic is Cavalry-only)
@@ -467,6 +494,7 @@ function sanitizeForUniform(){
   // CSIB — preserve it if the new uniform still allows it.
   if (!cfg.csib){
     state.csib = false;
+    state.csibType = '';
   }
 
   // Ribbons
@@ -625,35 +653,84 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
   });
 });
 
-document.getElementById('tabContent').addEventListener('click', e=>{
+document.getElementById('tabContent').addEventListener('click', e => {
+  const toggle = e.target.closest('#csibToggle');
+  if (!toggle) return;
+
   const el = e.target.closest('.chip');
   if (!el || el.classList.contains('locked')) return;
+
   const id = el.dataset.id;
   const [kind, key] = id.split(':');
-  if (kind==='tab'){
+
+  if (kind === 'tab') {
     const cfg = UNIFORMS[state.uniform];
-    const maxN = cfg.skillTabs ? cfg.skillTabs.max : (cfg.skillTabsMetal ? cfg.skillTabsMetal.max : 99);
-    if (state.skillTabs.has(key)) state.skillTabs.delete(key);
-    else state.skillTabs.add(key);
-  } else if (kind==='badge'){
-    if (state.skillBadges.has(key)){ state.skillBadges.delete(key); delete state.badgeTiers[key]; }
-    else { state.skillBadges.add(key); if (TIERED_BADGES[key]) state.badgeTiers[key] = TIERED_BADGES[key][0]; }
-  } else if (kind==='csib'){
-    state.csib = !state.csib;
-  } else if (kind==='id'){
-    if (state.idBadges.has(key)){ state.idBadges.delete(key); delete state.idBadgeTiers[key]; }
-    else { state.idBadges.add(key); if (TIERED_ID_BADGES[key]) state.idBadgeTiers[key] = TIERED_ID_BADGES[key][0]; }
-  } else if (kind==='ribbon'){
-    if (state.ribbons.has(key)) state.ribbons.delete(key);
-    else state.ribbons.add(key);
-  } else if (kind==='foreign'){
-    if (state.foreign.has(key)) state.foreign.delete(key);
-    else state.foreign.add(key);
-  } else if (kind==='uc'){
-    if (state.unitCitations.has(key)) state.unitCitations.delete(key);
-    else state.unitCitations.add(key);
+    const maxN = cfg.skillTabs
+      ? cfg.skillTabs.max
+      : (cfg.skillTabsMetal ? cfg.skillTabsMetal.max : 99);
+
+    if (state.skillTabs.has(key)) {
+      state.skillTabs.delete(key);
+    } else {
+      state.skillTabs.add(key);
+    }
+
+  } else if (kind === 'badge') {
+    if (state.skillBadges.has(key)) {
+      state.skillBadges.delete(key);
+      delete state.badgeTiers[key];
+    } else {
+      state.skillBadges.add(key);
+      if (TIERED_BADGES[key]) {
+        state.badgeTiers[key] = TIERED_BADGES[key][0];
+      }
+    }
+
+  } else if (kind === 'id') {
+    if (state.idBadges.has(key)) {
+      state.idBadges.delete(key);
+      delete state.idBadgeTiers[key];
+    } else {
+      state.idBadges.add(key);
+      if (TIERED_ID_BADGES[key]) {
+        state.idBadgeTiers[key] = TIERED_ID_BADGES[key][0];
+      }
+    }
+
+  } else if (kind === 'ribbon') {
+    if (state.ribbons.has(key)) {
+      state.ribbons.delete(key);
+    } else {
+      state.ribbons.add(key);
+    }
+
+  } else if (kind === 'foreign') {
+    if (state.foreign.has(key)) {
+      state.foreign.delete(key);
+    } else {
+      state.foreign.add(key);
+    }
+
+  } else if (kind === 'uc') {
+    if (state.unitCitations.has(key)) {
+      state.unitCitations.delete(key);
+    } else {
+      state.unitCitations.add(key);
+    }
   }
+
+  if (!state.csib) {
+    state.csibType = '';
+  }
+
   renderAll();
+});
+
+document.getElementById('tabContent').addEventListener('input', e=>{
+  if (e.target.id === 'csibType'){
+    state.csibType = e.target.value;
+    renderAll();
+  }
 });
 
 document.getElementById('tabContent').addEventListener('change', e=>{

@@ -382,7 +382,7 @@ const state = {
   uniform:'ocp', gender:'Male', name:'', paygrade:'', division:'', nametape:'', robuxProof:'',
   discountAmt:0, discountBy:'',
   watch:false, watchSide:'Left', watchColor:'Black', tattoos:0, offsetRibbon:false, offsetBadge:false, offsetRdi:false,
-  csib:false,
+  csib:false, csibType:'',
   skillTabs:new Set(), skillBadges:new Set(), idBadges:new Set(), ribbons:new Set(), foreign:new Set(),
   unitCitations:new Set(), serviceStripes:0, overseasBars:0,
   badgeTiers:{}, idBadgeTiers:{},
@@ -496,6 +496,13 @@ function validate(){
     issues.push('Identification Badges are not authorized on '+cfg.label+'.');
   }
 
+  // CSIB type is mandatory when CSIB is worn.
+  if (cfg.csib && state.csib){
+    if (!state.csibType.trim()){
+      issues.push('CSIB Type is required when a CSIB is worn.');
+    }
+  }
+
   // Ribbons
   if (cfg.ribbons){
     if (cfg.ribbons.max!=null && state.ribbons.size>cfg.ribbons.max){
@@ -582,6 +589,12 @@ function computePrice(){
 /* ---------------------------------------------------------------
    FORMAT TEXT
 ---------------------------------------------------------------- */
+function csibDisplayName(){
+  let type = state.csibType.trim();
+  type = type.replace(/\s*CSIB\s*$/i, '').trim();
+  return type ? type+' CSIB' : 'CSIB';
+}
+
 function classBItemName(id){
   if (TAB_NAME[id]) return TAB_NAME[id]+' (metal)';
   if (BADGE_NAME[id]) return BADGE_NAME[id]+' (metal)';
@@ -603,7 +616,7 @@ function generateFormat(){
   const cfg = UNIFORMS[state.uniform];
   const tabsList = [...state.skillTabs].map(id=>TAB_NAME[id]);
   const badgesList = [...state.skillBadges].map(id=>badgeDisplayName(id));
-  if (state.csib) badgesList.unshift('Combat Service Identification Badge (CSIB)');
+  if (state.csib) badgesList.unshift(csibDisplayName());
   const idList = [...state.idBadges].map(id=>idBadgeDisplayName(id));
   if (state.uniform==='classB' && state.classBItem) badgesList.push(classBItemName(state.classBItem));
   const allBadges = [...tabsList, ...badgesList, ...idList];
