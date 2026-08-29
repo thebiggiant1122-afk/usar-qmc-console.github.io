@@ -181,7 +181,7 @@ const UNIT_TREE = [
       ]},
     {name:'82nd Airborne Division', combative:'Combative', children:[
       {name:'Panther Brigade', role:'Mixed', children:[
-        {name:'173rd Mountaineering Company', role:'Mixed', badge:'cab'},
+        {name:'173rd Mountaineering Company', role:'Mixed', badge:'cab', platoons: [{ name: 'Summit Platoon', role: 'Infantry' },{ name: 'Jaguar Platoon', role: 'Light-Cavalry', dmbEligible: true }]},
         {name:'Angel Company', role:'Medical', badge:'cmb'}
       ]},
       {name:'Falcon Brigade', role:'Mixed', children:[
@@ -315,12 +315,19 @@ function getNodeByPath(path){
 }
 
 function isDmbEligible(){
-  // Headquarters has no unit-specific badge restrictions.
   if (state.divisionPath[1] === 'Headquarters'){
     return true;
   }
 
   const node = getNodeByPath(state.divisionPath);
+
+  if (node?.platoons?.length){
+    const platoon = node.platoons.find(p => p.name === state.platoon);
+
+    if (platoon){
+      return !!platoon.dmbEligible;
+    }
+  }
 
   return !!(
     node?.role?.startsWith('Cavalry') ||
@@ -387,6 +394,7 @@ const state = {
   unitCitations:new Set(), serviceStripes:0, overseasBars:0,
   badgeTiers:{}, idBadgeTiers:{},
   divisionPath:[],
+  platoon:'',
   classBItem:'', activeTab:'badges'
 };
 
