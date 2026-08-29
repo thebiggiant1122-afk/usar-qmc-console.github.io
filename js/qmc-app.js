@@ -225,6 +225,9 @@ function renderDivisionSelects(){
   let levelOptions = UNIT_TREE;
   let i = 0;
 
+  // Reset platoon unless the currently selected unit actually supports it.
+  let selectedDeepestNode = null;
+
   while (levelOptions && levelOptions.length){
     const selectedName = state.divisionPath[i] || '';
     const label = LEVEL_LABELS[i] || 'Sub-unit';
@@ -251,36 +254,82 @@ function renderDivisionSelects(){
     if (!selectedName || selectedName === 'Headquarters') break;
 
     const node = levelOptions.find(n=>n.name===selectedName);
-    levelOptions = node ? node.children : null;
+    if (!node) break;
+
+    selectedDeepestNode = node;
+    levelOptions = node.children;
     i++;
+  }
+
+  /*
+   * Platoons are stored separately from normal children.
+   * They are selectable in the UI, but are NOT added to divisionPath.
+   * This keeps them out of the generated order format.
+   */
+  const deepest = getNodeByPath(state.divisionPath);
+
+  if (deepest?.platoons?.length){
+    html += '<select class="platoon-select" id="platoonSelect">';
+    html += '<option value="">— Select Platoon —</option>';
+
+    deepest.platoons.forEach(p=>{
+      html += '<option value="'+
+        p.name.replace(/"/g,'&quot;')+
+        '"'+
+        (state.platoon===p.name?' selected':'')+
+        '>'+
+        p.name+
+        (p.role?' ('+p.role+')':'')+
+        '</option>';
+    });
+
+    html += '</select>';
+  } else {
+    // Clear stale platoon selection when the selected unit has none.
+    state.platoon = '';
   }
 
   container.innerHTML = html;
 
   const infoBox = document.getElementById('divisionInfo');
-  const deepest = getNodeByPath(state.divisionPath);
+  const deepestForInfo = getNodeByPath(state.divisionPath);
 
-  if (deepest && (deepest.combative || deepest.badge || deepest.note)){
+  if (deepestForInfo && (
+    deepestForInfo.combative ||
+    deepestForInfo.badge ||
+    deepestForInfo.note
+  )){
     const lines = [];
 
-    if (deepest.combative){
-      lines.push('<div><b>Classification:</b> '+deepest.combative+'</div>');
-    }
-
-    if (deepest.badge){
-      const has = state.skillBadges.has(deepest.badge);
-
+    if (deepestForInfo.combative){
       lines.push(
-        '<div class="ui-badge-row"><span><b>Auto Deployment Badge:</b> '+
-        '<span class="ui-badge">'+BADGE_NAME[deepest.badge]+'</span></span>'+
-        '<div class="badge-toggle-box '+(has?'on':'off')+'" '+
-        'data-badge-toggle="'+deepest.badge+'" '+
-        'title="Click to '+(has?'remove':'add')+' to your Skill Badges"></div></div>'
+        '<div><b>Classification:</b> '+
+        deepestForInfo.combative+
+        '</div>'
       );
     }
 
-    if (deepest.note){
-      lines.push('<div class="ui-note">'+deepest.note+'</div>');
+    if (deepestForInfo.badge){
+      const has = state.skillBadges.has(deepestForInfo.badge);
+
+      lines.push(
+        '<div class="ui-badge-row"><span><b>Auto Deployment Badge:</b> '+
+        '<span class="ui-badge">'+
+        BADGE_NAME[deepestForInfo.badge]+
+        '</span></span>'+
+        '<div class="badge-toggle-box '+(has?'on':'off')+'" '+
+        'data-badge-toggle="'+deepestForInfo.badge+'" '+
+        'title="Click to '+(has?'remove':'add')+
+        ' to your Skill Badges"></div></div>'
+      );
+    }
+
+    if (deepestForInfo.note){
+      lines.push(
+        '<div class="ui-note">'+
+        deepestForInfo.note+
+        '</div>'
+      );
     }
 
     infoBox.innerHTML = lines.join('');
@@ -619,6 +668,20 @@ document.getElementById('divisionInfo').addEventListener('click', e=>{
 });
 
 document.getElementById('divisionSelects').addEventListener('change', e=>{
+  const platoonSelect = e.target.closest('#platoonSelect');
+
+  if (platoonSelect){
+    state.platoon = platoonSelect.value;
+
+    if (!isDmbEligible() && state.skillBadges.has('dmb')){
+      state.skillBadges.delete('dmb');
+      delete state.badgeTiers.dmb;
+    }
+
+    renderAll();
+    return;
+  }
+
   const sel = e.target.closest('.division-level');
   if (!sel) return;
 
@@ -630,8 +693,8 @@ document.getElementById('divisionSelects').addEventListener('change', e=>{
     state.divisionPath.push(sel.value);
   }
 
-  // Headquarters is terminal and represents the selected main command.
-  // No lower-level unit can remain selected beneath it.
+  state.platoon = '';
+
   if (sel.value === 'Headquarters'){
     state.divisionPath = state.divisionPath.slice(0, 2);
     state.divisionPath[1] = 'Headquarters';
@@ -639,6 +702,7 @@ document.getElementById('divisionSelects').addEventListener('change', e=>{
 
   if (!isDmbEligible() && state.skillBadges.has('dmb')){
     state.skillBadges.delete('dmb');
+    delete state.badgeTiers.dmb;
   }
 
   renderAll();
