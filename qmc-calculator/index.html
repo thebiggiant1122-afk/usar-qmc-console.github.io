@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>QMC Requisition Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <h1>QMC Requisition Console</h1>
+      <div class="sub">Uniform Pricing &amp; Order Format Builder — U.S. Army Quartermaster Corps</div>
+    </div>
+    <div class="stamp-corner">FORT LEE, VIRGINIA<br>REF: QMC UNIFORM GUIDE v1.0 / BADGE APPROVAL v1.0</div>
+  </header>
+
+  <div class="grid">
+    <aside class="left">
+
+      <div class="card">
+        <h2 class="section-title">Uniform Type</h2>
+        <label>Select Uniform</label>
+        <select id="uniformSelect"></select>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Total Price</h2>
+        <div class="price-total"><span id="priceTotal">150</span><small> R$</small></div>
+        <div class="price-lines" id="priceLines"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Accessories</h2>
+        <div class="acc-row">
+          <div class="a-label">Watch <span class="acc-note">R$3</span></div>
+          <div class="toggle" id="watchToggle"><div class="knob"></div></div>
+        </div>
+        <div class="acc-row">
+          <div class="a-label">Tattoos <span class="acc-note">R$3 each</span></div>
+          <div class="num-select" id="tattooSelect">
+            <button data-n="0">0</button><button data-n="1">1</button><button data-n="2">2</button>
+          </div>
+        </div>
+        <div class="acc-row">
+          <div class="a-label">Ribbon Offset <span class="acc-note">R$3</span></div>
+          <div class="toggle" id="offsetRibbon"><div class="knob"></div></div>
+        </div>
+        <div class="acc-row">
+          <div class="a-label">Badge Offset <span class="acc-note">R$3</span></div>
+          <div class="toggle" id="offsetBadge"><div class="knob"></div></div>
+        </div>
+        <div class="acc-row">
+          <div class="a-label">RDI Offset <span class="acc-note">R$3</span></div>
+          <div class="toggle" id="offsetRdi"><div class="knob"></div></div>
+        </div>
+      </div>
+
+      <div class="card format-card">
+        <div class="format-head">
+          <h2 class="section-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0;">Format Builder</h2>
+          <div id="stampBadge" class="stamp ready">Ready</div>
+        </div>
+        <div class="format-fields">
+          <div class="row2">
+            <div><label>Name (discord id)</label><input type="text" id="fName" placeholder="username"></div>
+            <div><label>Gender</label><select id="fGender"><option>Male</option><option>Female</option></select></div>
+          </div>
+          <div class="row2">
+            <div><label>Paygrade</label><select id="fPaygrade"></select></div>
+            <div><label>Rank Name (auto)</label><input type="text" id="fRank" readonly placeholder="Select a paygrade"></div>
+          </div>
+          <div class="row2">
+            <div><label>Nametape</label><input type="text" id="fNametape" placeholder="LASTNAME"></div>
+            <div><label>Robux Proof Sent To (ping)</label><input type="text" id="fProof" placeholder="LC username"></div>
+          </div>
+          <label>Current Division / Brigade / Company</label>
+          <div id="divisionSelects" class="division-selects"></div>
+          <div id="divisionInfo" class="unit-info" style="display:none;"></div>
+          <div class="row2">
+            <div><label>Discount Amount (R$)</label><input type="number" id="fDiscAmt" min="0" placeholder="0"></div>
+            <div id="discByWrap"><label id="discByLabel" style="display:none;">Discount Given By (ping QM)</label>
+            <input type="text" id="fDiscBy" style="display:none;" placeholder="QM username"></div>
+          </div>
+        </div>
+        <div class="format-output" id="formatOutput"></div>
+        <button class="copy-btn" id="copyBtn">Copy Format</button>
+      </div>
+
+    </aside>
+
+    <main class="right">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="badges">Badges</button>
+        <button class="tab-btn" data-tab="ribbons">Ribbons</button>
+        <button class="tab-btn" data-tab="foreign">Foreign Devices</button>
+      </div>
+
+      <div id="violationsBox"></div>
+      <div id="ruleRef" class="rule-ref"></div>
+      <div id="tabContent"></div>
+    </main>
+  </div>
+</div>
+
+<script src="js/qmc-data.js"></script>
+<script src="js/qmc-app.js"></script>
+</body>
+</html>
