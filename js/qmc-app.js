@@ -654,9 +654,29 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
 });
 
 document.getElementById('tabContent').addEventListener('click', e => {
-  const toggle = e.target.closest('#csibToggle');
-  if (!toggle) return;
+  // CSIB toggle
+  const csibToggle = e.target.closest('#csibToggle');
+  if (csibToggle) {
+    const cfg = UNIFORMS[state.uniform];
+    if (!cfg.csib) return;
 
+    state.csib = !state.csib;
+
+    if (!state.csib) {
+      state.csibType = '';
+    }
+
+    // Class C: CSIB and ID badges cannot coexist
+    if (state.csib && state.uniform === 'classC') {
+      state.idBadges.clear();
+      state.idBadgeTiers = {};
+    }
+
+    renderAll();
+    return;
+  }
+
+  // Everything else: chips
   const el = e.target.closest('.chip');
   if (!el || el.classList.contains('locked')) return;
 
@@ -671,7 +691,7 @@ document.getElementById('tabContent').addEventListener('click', e => {
 
     if (state.skillTabs.has(key)) {
       state.skillTabs.delete(key);
-    } else {
+    } else if (state.skillTabs.size < maxN) {
       state.skillTabs.add(key);
     }
 
@@ -719,17 +739,15 @@ document.getElementById('tabContent').addEventListener('click', e => {
     }
   }
 
-  if (!state.csib) {
-    state.csibType = '';
-  }
-
   renderAll();
 });
 
-document.getElementById('tabContent').addEventListener('input', e=>{
-  if (e.target.id === 'csibType'){
+document.getElementById('tabContent').addEventListener('input', e => {
+  if (e.target.id === 'csibType') {
     state.csibType = e.target.value;
-    renderAll();
+    renderFormat();
+    renderPrice();
+    renderViolations();
   }
 });
 
