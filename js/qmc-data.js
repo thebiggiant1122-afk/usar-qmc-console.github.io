@@ -104,6 +104,9 @@ const UNIT_CITATIONS = [
 ];
 const CITATION_NAME = {}; UNIT_CITATIONS.forEach(c=>CITATION_NAME[c.id]=c.name);
 
+const WATCH_SIDES = ['Left','Right'];
+const WATCH_COLORS = ['Black','Brown','Grey/Tan'];
+
 /* ---------------------------------------------------------------
    RANKS
 ---------------------------------------------------------------- */
@@ -378,7 +381,7 @@ const UNIFORMS = {
 const state = {
   uniform:'ocp', gender:'Male', name:'', paygrade:'', division:'', nametape:'', robuxProof:'',
   discountAmt:0, discountBy:'',
-  watch:false, tattoos:0, offsetRibbon:false, offsetBadge:false, offsetRdi:false,
+  watch:false, watchSide:'Left', watchColor:'Black', tattoos:0, offsetRibbon:false, offsetBadge:false, offsetRdi:false,
   csib:false,
   skillTabs:new Set(), skillBadges:new Set(), idBadges:new Set(), ribbons:new Set(), foreign:new Set(),
   unitCitations:new Set(), serviceStripes:0, overseasBars:0,
@@ -610,7 +613,7 @@ function generateFormat(){
   const ribbonsList = [...automaticRibbons, ...chosenRibbons];
 
   const miscItems=[];
-  if (state.watch) miscItems.push('Watch');
+  if (state.watch) miscItems.push('Watch ('+state.watchSide+', '+state.watchColor+')');
   if (state.tattoos>0) miscItems.push(state.tattoos+' Tattoo'+(state.tattoos>1?'s':''));
   if (state.serviceStripes>0) miscItems.push(state.serviceStripes+' Service Stripe'+(state.serviceStripes>1?'s':''));
   if (state.overseasBars>0) miscItems.push(state.overseasBars+' Overseas Bar'+(state.overseasBars>1?'s':''));
@@ -633,7 +636,8 @@ function generateFormat(){
   txt += (allBadges.length ? allBadges.map(b=>'* '+b).join('\n') : '* None') + '\n';
   txt += '\n**Ribbons:**\n\n';
   txt += ribbonsList.map(r=>'* '+r).join('\n') + '\n';
-  if (miscItems.length){ txt += '\n**Misc:** '+miscItems.join(', ')+'\n'; }
+  txt += '\n**Misc:**\n\n';
+  txt += (miscItems.length ? miscItems.map(m=>'* '+m).join('\n') : '* None') + '\n';
   txt += '\n**Current Division/Brigade/Company:** '+(state.division||'')+'\n';
   txt += '**Nametape:** '+(state.nametape||'')+'\n';
   txt += '**Offset:** '+(offsetParts.length?offsetParts.join(', '):'None')+'\n';

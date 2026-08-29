@@ -29,7 +29,13 @@ function renderAccessories(){
   const wt = document.getElementById('watchToggle');
   wt.classList.toggle('on', state.watch);
   wt.classList.toggle('disabled', !cfg.watch);
-  document.querySelectorAll('#tattooSelect button').forEach(b=>b.classList.toggle('active', Number(b.dataset.n)===state.tattoos));
+  const watchSide = document.getElementById('watchSide');
+  const watchColor = document.getElementById('watchColor');
+  watchSide.value = state.watchSide;
+  watchColor.value = state.watchColor;
+  watchSide.disabled = !cfg.watch;
+  watchColor.disabled = !cfg.watch;
+  document.querySelectorAll('#tattooSelect button').forEach(b=>b.classList.toggle('active',Number(b.dataset.n)===state.tattoos));
   document.getElementById('offsetRibbon').classList.toggle('on', state.offsetRibbon);
   document.getElementById('offsetBadge').classList.toggle('on', state.offsetBadge);
   document.getElementById('offsetRdi').classList.toggle('on', state.offsetRdi);
@@ -535,7 +541,15 @@ document.getElementById('uniformSelect').addEventListener('change', e=>{
   renderAll();
 });
 
+document.getElementById('watchSide').addEventListener('change', e=>{
+  state.watchSide = e.target.value;
+  renderAll();
+});
 
+document.getElementById('watchColor').addEventListener('change', e=>{
+  state.watchColor = e.target.value;
+  renderAll();
+});
 document.getElementById('watchToggle').addEventListener('click', ()=>{
   const cfg = UNIFORMS[state.uniform];
   if (!cfg.watch) return;

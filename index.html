@@ -35,9 +35,27 @@
 
       <div class="card">
         <h2 class="section-title">Accessories</h2>
-        <div class="acc-row">
-          <div class="a-label">Watch <span class="acc-note">R$3</span></div>
-          <div class="toggle" id="watchToggle"><div class="knob"></div></div>
+        <div class="acc-row watch-row">
+          <div class="a-label">
+            Watch <span class="acc-note">R$3</span>
+          </div>
+
+          <div class="watch-controls">
+            <select id="watchSide" class="watch-select">
+              <option value="Left">Left</option>
+              <option value="Right">Right</option>
+            </select>
+
+            <select id="watchColor" class="watch-select">
+              <option value="Black">Black</option>
+              <option value="Brown">Brown</option>
+              <option value="Grey/Tan">Grey/Tan</option>
+            </select>
+
+            <div class="toggle" id="watchToggle">
+              <div class="knob"></div>
+            </div>
+          </div>
         </div>
         <div class="acc-row">
           <div class="a-label">Tattoos <span class="acc-note">R$3 each</span></div>
