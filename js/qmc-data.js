@@ -105,7 +105,7 @@ const UNIT_CITATIONS = [
 const CITATION_NAME = {}; UNIT_CITATIONS.forEach(c=>CITATION_NAME[c.id]=c.name);
 
 const WATCH_SIDES = ['Left','Right'];
-const WATCH_COLORS = ['Black','Brown','Grey/Tan'];
+const WATCH_COLORS = ['Black','Brown','Grey','Tan'];
 
 /* ---------------------------------------------------------------
    RANKS
