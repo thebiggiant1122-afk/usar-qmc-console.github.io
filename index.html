@@ -20,11 +20,21 @@
 
   <div class="grid">
     <aside class="left">
-
       <div class="card">
         <h2 class="section-title">Uniform Type</h2>
+
         <label>Select Uniform</label>
         <select id="uniformSelect"></select>
+
+        <div class="acc-row" style="margin-top:2px;">
+          <div class="a-label">
+            Rolled
+            <span class="acc-note">Uniform variant</span>
+          </div>
+          <div class="toggle" id="rolledToggle">
+            <div class="knob"></div>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -59,9 +69,15 @@
           </div>
         </div>
         <div class="acc-row">
-          <div class="a-label">Tattoos <span class="acc-note">R$3 each</span></div>
+          <div class="a-label">
+            Tattoos
+            <span class="acc-note">CJCS discontinued</span>
+          </div>
+
           <div class="num-select" id="tattooSelect">
-            <button data-n="0">0</button><button data-n="1">1</button><button data-n="2">2</button>
+            <button data-n="0" class="active">0</button>
+            <button data-n="1" disabled>1</button>
+            <button data-n="2" disabled>2</button>
           </div>
         </div>
         <div class="acc-row">

@@ -338,55 +338,251 @@ function isDmbEligible(){
 
 /* Uniform configs, derived from the QMC Uniform Guide v1.0 */
 const UNIFORMS = {
-  ocp:{label:'OCP (Standard)', base:150,
-    skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true, foreignAward:{max:1},
-    skillBadges:{max:4, comboGroups:[[1,2],[3]]}, idBadges:{max:2, allowed:['ds','instr','rec','mg']}, watch:false,
-    rules:['Divisional Patch, Ranktab &amp; Nametape included free','Skill Tabs — max 2','CSIB authorized','1 Foreign Award slot','Skill Badges — max 4 total, only 1 from Groups 1–2 combined, 1 from Group 3','Driver and Mechanic Badge requires a Cavalry-designated unit; Marksmanship Badge open to anyone','ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)']},
-  rolledOcp:{label:'Rolled OCP', base:150,
-    skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true, foreignAward:{max:1},
-    skillBadges:{max:4, comboGroups:[[1,2,3]]}, idBadges:{max:2, allowed:['ds','instr','rec','mg']}, watch:true,
-    rules:['Same as Standard OCP, plus a Watch is authorized','Skill Badges — max 4 total, only 1 combined from Groups 1–3','Driver and Mechanic Badge requires a Cavalry-designated unit; Marksmanship Badge open to anyone','ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)']},
-  acs:{label:'Army Combat Shirt (ACS)', base:150,
-    skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true, watch:true,
-    rules:['Divisional Patch &amp; CSIB authorized','Skill Tabs — max 2','Watch authorized if sleeves rolled','No ribbons, skill badges, or ID badges on this uniform']},
-  blackouts:{label:'ASOC Blackouts', base:150,
-    skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true,
-    rules:['Divisional Patch &amp; CSIB authorized','Skill Tabs — max 2','No watch, ribbons, skill badges, or ID badges']},
-  customPt:{label:'Custom PT', base:150, watch:true,
-    rules:['Divisional Patch, Nametape included free','Watch authorized','No badges, tabs, or ribbons on this uniform']},
-  fleece:{label:'Army Fleece (Winter Only)', base:150,
-    rules:['Ranktab &amp; Nametape only — no other items authorized']},
-  tigerstripes:{label:'ASF Tiger Stripes', base:150,
-    skillTabs:{max:2, allowed:'all'}, skillBadges:{max:2, comboGroups:null},
-    rules:['Divisional Patch &amp; Nametape included free','Skill Tabs — max 2','Skill Badges — max 2 (Groups 1–5 all eligible)']},
-  agsu:{label:'AGSU (Class A)', base:150,
-    skillTabs:{max:2, allowed:COMBAT_TABS}, csib:true, foreignUnlimited:true,
-    skillBadges:{max:4, comboGroups:[[1,2,3]]}, idBadges:{max:2, allowed:['mp','cid','as','jcs','rec','instr']},
-    ribbons:{max:null, offsetRows:2, offsetPerRow:2}, unitCitations:true, stripesBars:true,
-    rules:['Divisional Patch, Officer Branch Insignia, RDI &amp; Shoulderloop RDI, ROKA Jump Wings all included per guide (free)','Skill Tabs — max 2','CSIB authorized','Skill Badges — max 4, only 1 combined from Groups 1–3 (Groups 4–5 not restricted by this combo rule)','ID Badges — max 2','Ribbons — unlimited (space permitting); max 2 rows offset, 2 ribbons per offset row','Service Stripes (enlisted only, max 8) &amp; Overseas Bars (max 8) — R$3 each','Unit Citations correlated to current division — free']},
-  classB:{label:'Class B', base:150, comboSkill:true, ribbons:{max:6}, watch:true,
-    rules:['RDI included per guide (free)','Ribbons — max 6, your choice of which','1 combined Skill Badge OR Skill Tab (metal replica variation)','Watch authorized if short sleeve']},
-  classBSweater:{label:'Class B Sweater (Winter Only)', base:150,
-    rules:['Nametape &amp; Shoulderloop Ranktabs only — no other items authorized']},
-  classC:{label:'Class C', base:150,
-    skillTabsMetal:{max:1, allowed:'all'}, csib:true, foreignUnlimited:true,
-    skillBadges:{max:4, comboGroups:[[1,2,3]]}, unitCitations:true,
-    idBadgesConditional:{max:2, allowed:['mp','cid','as','jcs','rec','instr']},
-    ribbons:{max:null, offsetRows:2, offsetPerRow:2},
-    rules:['RDI &amp; Unit Citations included per guide (free)','Skill Tab — max 1 (metal replica variation)','CSIB authorized','Skill Badges — max 4, only 1 combined from Groups 1–3 (Groups 4–5 not restricted by this combo rule)','ID Badges — max 2 ONLY IF no CSIB is worn','Ribbons — unlimited (space permitting); max 2 rows offset, 2 ribbons per offset row']},
-  icvcTanker:{label:'ICVC — Tanker', base:150,
-    rules:['Nametape &amp; Ranktab only — no other items authorized']},
-  icvcPilot:{label:'ICVC — Pilot', base:150, aviatorOnly:true,
-    rules:['Nametape &amp; Ranktab included free','Only Army Aviator Badge or Army Aviation Badge (Group 3) authorized']},
-  greenouts:{label:'Greenouts (SRT)', base:150, csib:true,
-    rules:['Nametape included free','CSIB authorized — no other badges, tabs, or ribbons']}
+  ocp:{
+    label:'OCP (Standard)',
+    base:150,
+    rollable:true,
+
+    skillTabs:{max:2, allowed:COMBAT_TABS},
+    csib:true,
+    foreignAward:{max:1},
+
+    skillBadges:{
+      max:4,
+      comboGroups:[[1,2],[3]]
+    },
+
+    idBadges:{
+      max:2,
+      allowed:['ds','instr','rec','mg']
+    },
+
+    watch:false,
+
+    rules:[
+      'Divisional Patch, Ranktab &amp; Nametape included free',
+      'Skill Tabs — max 2',
+      'CSIB authorized',
+      '1 Foreign Award slot',
+      'Skill Badges — max 4 total, only 1 from Groups 1–2 combined, 1 from Group 3',
+      'Driver and Mechanic Badge requires a Cavalry-designated unit; Marksmanship Badge open to anyone',
+      'ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)'
+    ]
+  },
+
+  rolledOcp:{
+    label:'Rolled OCP',
+    base:150,
+
+    skillTabs:{max:2, allowed:COMBAT_TABS},
+    csib:true,
+    foreignAward:{max:1},
+
+    skillBadges:{
+      max:4,
+      comboGroups:[[1,2,3]]
+    },
+
+    idBadges:{
+      max:2,
+      allowed:['ds','instr','rec','mg']
+    },
+
+    watch:true,
+
+    rules:[
+      'Same as Standard OCP, plus a Watch is authorized',
+      'Skill Badges — max 4 total, only 1 combined from Groups 1–3',
+      'Driver and Mechanic Badge requires a Cavalry-designated unit; Marksmanship Badge open to anyone',
+      'ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)'
+    ]
+  },
+
+  acs:{
+    label:'Army Combat Shirt (ACS)',
+    base:150,
+    rollable:true,
+
+    skillTabs:{max:2, allowed:COMBAT_TABS},
+    csib:true,
+    watch:true,
+
+    rules:[
+      'Divisional Patch &amp; CSIB authorized',
+      'Skill Tabs — max 2',
+      'Watch authorized if sleeves rolled',
+      'No ribbons, skill badges, or ID badges on this uniform'
+    ]
+  },
+
+  blackouts:{
+    label:'ASOC Blackouts',
+    base:150,
+
+    skillTabs:{max:2, allowed:COMBAT_TABS},
+    csib:true,
+
+    rules:[
+      'Divisional Patch &amp; CSIB authorized',
+      'Skill Tabs — max 2',
+      'No watch, ribbons, skill badges, or ID badges'
+    ]
+  },
+
+  fleece:{
+    label:'Army Fleece (Winter Only)',
+    base:150,
+
+    rules:[
+      'Ranktab &amp; Nametape only — no other items authorized'
+    ]
+  },
+
+  tigerstripes:{
+    label:'ASF Tiger Stripes',
+    base:150,
+
+    skillTabs:{max:2, allowed:'all'},
+    skillBadges:{max:2, comboGroups:null},
+
+    rules:[
+      'Divisional Patch &amp; Nametape included free',
+      'Skill Tabs — max 2',
+      'Skill Badges — max 2 (Groups 1–5 all eligible)'
+    ]
+  },
+
+  agsu:{
+    label:'AGSU (Class A)',
+    base:150,
+
+    skillTabs:{max:2, allowed:COMBAT_TABS},
+    csib:true,
+    foreignUnlimited:true,
+
+    skillBadges:{
+      max:4,
+      comboGroups:[[1,2,3]]
+    },
+
+    idBadges:{
+      max:2,
+      allowed:['mp','cid','as','jcs','rec','instr']
+    },
+
+    ribbons:{
+      max:null,
+      offsetRows:2,
+      offsetPerRow:2
+    },
+
+    unitCitations:true,
+    stripesBars:true,
+
+    rules:[
+      'Divisional Patch, Officer Branch Insignia, RDI &amp; Shoulderloop RDI, ROKA Jump Wings all included per guide (free)',
+      'Skill Tabs — max 2',
+      'CSIB authorized',
+      'Skill Badges — max 4, only 1 combined from Groups 1–3 (Groups 4–5 not restricted by this combo rule)',
+      'ID Badges — max 2',
+      'Ribbons — unlimited (space permitting); max 2 rows offset, 2 ribbons per offset row',
+      'Service Stripes (enlisted only, max 8) &amp; Overseas Bars (max 8) — R$3 each',
+      'Unit Citations correlated to current division — free'
+    ]
+  },
+
+  classB:{
+    label:'Class B',
+    base:150,
+    rollable:true,
+
+    comboSkill:true,
+    ribbons:{max:6},
+    watch:true,
+
+    rules:[
+      'RDI included per guide (free)',
+      'Ribbons — max 6, your choice of which',
+      '1 combined Skill Badge OR Skill Tab (metal replica variation)',
+      'Watch authorized if short sleeve'
+    ]
+  },
+
+  classBSweater:{
+    label:'Class B Sweater (Winter Only)',
+    base:150,
+
+    rules:[
+      'Nametape &amp; Shoulderloop Ranktabs only — no other items authorized'
+    ]
+  },
+
+  classC:{
+    label:'Class C',
+    base:150,
+
+    skillTabsMetal:{
+      max:1,
+      allowed:'all'
+    },
+
+    csib:true,
+    foreignUnlimited:true,
+
+    skillBadges:{
+      max:4,
+      comboGroups:[[1,2,3]]
+    },
+
+    unitCitations:true,
+
+    idBadgesConditional:{
+      max:2,
+      allowed:['mp','cid','as','jcs','rec','instr']
+    },
+
+    ribbons:{
+      max:null,
+      offsetRows:2,
+      offsetPerRow:2
+    },
+
+    rules:[
+      'RDI &amp; Unit Citations included per guide (free)',
+      'Skill Tab — max 1 (metal replica variation)',
+      'CSIB authorized',
+      'Skill Badges — max 4, only 1 combined from Groups 1–3 (Groups 4–5 not restricted by this combo rule)',
+      'ID Badges — max 2 ONLY IF no CSIB is worn',
+      'Ribbons — unlimited (space permitting); max 2 rows offset, 2 ribbons per offset row'
+    ]
+  },
+
+  icvcTanker:{
+    label:'ICVC — Tanker',
+    base:150,
+
+    rules:[
+      'Nametape &amp; Ranktab only — no other items authorized'
+    ]
+  },
+
+  icvcPilot:{
+    label:'ICVC — Pilot',
+    base:150,
+    aviatorOnly:true,
+
+    rules:[
+      'Nametape &amp; Ranktab included free',
+      'Only Army Aviator Badge or Army Aviation Badge (Group 3) authorized'
+    ]
+  }
 };
 
 /* ---------------------------------------------------------------
    STATE
 ---------------------------------------------------------------- */
 const state = {
-  uniform:'ocp', gender:'Male', name:'', paygrade:'', division:'', nametape:'', robuxProof:'',
+  uniform:'ocp', rolled:false, gender:'Male', name:'', paygrade:'', division:'', nametape:'', robuxProof:'',
   discountAmt:0, discountBy:'',
   watch:false, watchSide:'Left', watchColor:'Black', tattoos:0, offsetRibbon:false, offsetBadge:false, offsetRdi:false,
   csib:false, csibType:'',
@@ -548,8 +744,8 @@ function validate(){
   if (state.overseasBars>8) issues.push('Overseas Bars: max 8.');
 
   // Watch
-  if (!cfg.watch && state.watch){
-    issues.push('A watch is not authorized on '+cfg.label+'.');
+  if (!canWearWatch() && state.watch){
+    issues.push('A watch is not authorized on '+getUniformDisplayLabel(state.uniform)+'.');
   }
 
   return {issues, invalid};
@@ -581,7 +777,7 @@ function computePrice(){
   add('Foreign Devices ('+state.foreign.size+')', state.foreign.size*3);
   if (state.uniform==='classB' && state.classBItem) add('Skill Badge/Tab (metal, combined)', 3);
   if (state.watch) add('Watch', 3);
-  if (state.tattoos>0) add('Tattoo'+(state.tattoos>1?'s':''), state.tattoos*3);
+  if (state.tattoos>0){lines.push({label:'Tattoo'+(state.tattoos>1?'s':'')+' (CJCS discontinued — free)',amt:0,free:true});}
   if (state.serviceStripes>0) add('Service Stripes ('+state.serviceStripes+')', state.serviceStripes*3);
   if (state.overseasBars>0) add('Overseas Bars ('+state.overseasBars+')', state.overseasBars*3);
 
@@ -651,7 +847,7 @@ function generateFormat(){
   let txt = '';
   txt += '**Name:** <@'+(state.name||'[Discord ID]')+'>'+'\n';
   txt += '**Rank:** '+(state.paygrade||'[Paygrade]')+', '+(RANK_NAMES[state.paygrade]||'[Rank]')+'\n';
-  txt += '**Type:** '+cfg.label+'\n';
+  txt += '**Type:** '+getUniformDisplayLabel(state.uniform)+'\n';
   txt += '**Gender:** '+state.gender+'\n';
   txt += '**Badges:**\n\n';
   txt += (allBadges.length ? allBadges.map(b=>'* '+b).join('\n') : '* None') + '\n';

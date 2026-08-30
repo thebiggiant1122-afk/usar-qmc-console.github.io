@@ -18,9 +18,24 @@ function escapeHtml(value){
     .replace(/'/g,'&#039;');
 }
 
+function getUniformDisplayLabel(key){
+  const cfg = UNIFORMS[key];
+  if (!cfg) return '';
+  return state.rolled ? 'Rolled '+cfg.label : cfg.label;
+}
+
 function renderUniformSelect(){
   const sel = document.getElementById('uniformSelect');
-  sel.innerHTML = Object.entries(UNIFORMS).map(([k,v])=>'<option value="'+k+'"'+(k===state.uniform?' selected':'')+'>'+v.label+'</option>').join('');
+
+  sel.innerHTML = Object.entries(UNIFORMS)
+    .map(([k,v]) =>
+      '<option value="'+k+'"'+
+      (k===state.uniform?' selected':'')+
+      '>'+
+      v.label+
+      '</option>'
+    )
+    .join('');
 }
 
 function renderPrice(){
@@ -33,21 +48,40 @@ function renderPrice(){
   }).join('');
 }
 
+function canWearWatch(){
+  const cfg = UNIFORMS[state.uniform];
+
+  if (!cfg.watch && !cfg.rollable){
+    return false;
+  }
+
+  // OCP / ACS / Class B use rolling to unlock the watch.
+  if (cfg.rollable){
+    return state.rolled;
+  }
+
+  return !!cfg.watch;
+}
+
 function renderAccessories(){
   const cfg = UNIFORMS[state.uniform];
   const wt = document.getElementById('watchToggle');
+  const watchAllowed = canWearWatch();
   wt.classList.toggle('on', state.watch);
-  wt.classList.toggle('disabled', !cfg.watch);
+  wt.classList.toggle('disabled', !watchAllowed);
   const watchSide = document.getElementById('watchSide');
   const watchColor = document.getElementById('watchColor');
   watchSide.value = state.watchSide;
   watchColor.value = state.watchColor;
-  watchSide.disabled = !cfg.watch;
-  watchColor.disabled = !cfg.watch;
-  document.querySelectorAll('#tattooSelect button').forEach(b=>b.classList.toggle('active',Number(b.dataset.n)===state.tattoos));
+  watchSide.disabled = !watchAllowed;
+  watchColor.disabled = !watchAllowed;
+  document.querySelectorAll('#tattooSelect button').forEach(b =>b.classList.toggle('active',Number(b.dataset.n)===state.tattoos));
   document.getElementById('offsetRibbon').classList.toggle('on', state.offsetRibbon);
   document.getElementById('offsetBadge').classList.toggle('on', state.offsetBadge);
   document.getElementById('offsetRdi').classList.toggle('on', state.offsetRdi);
+  const rolledToggle = document.getElementById('rolledToggle');
+  rolledToggle.classList.toggle('on', state.rolled);
+  rolledToggle.classList.toggle('disabled', !cfg.rollable);
 }
 
 function renderFormat(){
@@ -130,8 +164,8 @@ function renderBadgesTab(){
     [1,2,3,4,5].forEach(g=>{
       html += '<div style="margin-bottom:8px;"><div style="font-size:10px;color:var(--tan-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Group '+g+'</div><div class="chip-wrap">';
       BADGES[g].forEach(b=>{
-        const notCavalry = b.id==='dmb' && !isDmbEligible();
-        const locked = (cfg.aviatorOnly && b.id!=='aab' && b.id!=='avnb') || notCavalry;
+        const group5Prohibited = b.id === 'dmb';
+        const locked = group5Prohibited || (cfg.aviatorOnly && b.id!=='aab' && b.id!=='avnb');
         html += chip('badge:'+b.id, b.name+(notCavalry?' <span style="opacity:.7">(Drivers only)</span>':''), state.skillBadges.has(b.id), invalid.badges.has(b.id), 'R$3', locked);
       });
       html += '</div></div>';
@@ -434,6 +468,15 @@ function renderTabContent(){
 function sanitizeForUniform(){
   const cfg = UNIFORMS[state.uniform];
 
+  if (!cfg.rollable){
+    state.rolled = false;
+    state.watch = false;
+  }
+
+  if (!canWearWatch()){
+    state.watch = false;
+  }
+  
   // Skill Tabs
   if (cfg.skillTabs){
     if (cfg.skillTabs.allowed !== 'all'){
@@ -618,6 +661,21 @@ document.getElementById('uniformSelect').addEventListener('change', e=>{
   renderAll();
 });
 
+document.getElementById('rolledToggle').addEventListener('click', ()=>{
+  const cfg = UNIFORMS[state.uniform];
+
+  if (!cfg.rollable) return;
+
+  state.rolled = !state.rolled;
+
+  // Watch is only retained when the rolled configuration permits it.
+  if (!canWearWatch() && state.watch){
+    state.watch = false;
+  }
+
+  renderAll();
+});
+
 document.getElementById('watchSide').addEventListener('change', e=>{
   state.watchSide = e.target.value;
   renderAll();
@@ -628,13 +686,14 @@ document.getElementById('watchColor').addEventListener('change', e=>{
   renderAll();
 });
 document.getElementById('watchToggle').addEventListener('click', ()=>{
-  const cfg = UNIFORMS[state.uniform];
-  if (!cfg.watch) return;
-  state.watch = !state.watch; renderAll();
+  if (!canWearWatch()) return;
+  state.watch = !state.watch;
+  renderAll();
 });
 document.getElementById('tattooSelect').addEventListener('click', e=>{
-  if (e.target.tagName!=='BUTTON') return;
-  state.tattoos = Number(e.target.dataset.n); renderAll();
+  if (e.target.tagName!=='BUTTON' || e.target.disabled) return;
+  state.tattoos = Number(e.target.dataset.n);
+  renderAll();
 });
 document.getElementById('offsetRibbon').addEventListener('click', ()=>{ state.offsetRibbon=!state.offsetRibbon; renderAll(); });
 document.getElementById('offsetBadge').addEventListener('click', ()=>{ state.offsetBadge=!state.offsetBadge; renderAll(); });

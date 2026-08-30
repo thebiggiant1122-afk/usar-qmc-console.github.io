@@ -116,6 +116,7 @@ select:focus,input:focus{outline:1px solid var(--olive);border-color:var(--olive
   cursor:pointer;font-family:'IBM Plex Mono';border-radius:2px;
 }
 .num-select button.active{background:rgba(107,143,63,.25);border-color:var(--olive);color:var(--olive);}
+.num-select button:disabled{opacity:.3;cursor:not-allowed;}
 
 /* format card */
 .format-card{padding:0;overflow:hidden;}
