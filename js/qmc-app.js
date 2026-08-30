@@ -164,9 +164,19 @@ function renderBadgesTab(){
     [1,2,3,4,5].forEach(g=>{
       html += '<div style="margin-bottom:8px;"><div style="font-size:10px;color:var(--tan-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Group '+g+'</div><div class="chip-wrap">';
       BADGES[g].forEach(b=>{
-        const group5Prohibited = b.id === 'dmb';
-        const locked = group5Prohibited || (cfg.aviatorOnly && b.id!=='aab' && b.id!=='avnb');
-        html += chip('badge:'+b.id, b.name+(notCavalry?' <span style="opacity:.7">(Drivers only)</span>':''), state.skillBadges.has(b.id), invalid.badges.has(b.id), 'R$3', locked);
+        const dmbLocked = b.id === 'dmb' && !isDmbEligible();
+        const aviatorLocked = cfg.aviatorOnly && b.id !== 'aab' && b.id !== 'avnb';
+        const locked = dmbLocked || aviatorLocked;
+        const label = dmbLocked ? b.name + ' <span style="opacity:.7">(Drivers only)</span>' : b.name;
+
+        html += chip(
+          'badge:'+b.id,
+          label,
+          state.skillBadges.has(b.id),
+          invalid.badges.has(b.id),
+          'R$3',
+          locked
+        );
       });
       html += '</div></div>';
     });
