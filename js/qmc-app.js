@@ -21,7 +21,12 @@ function escapeHtml(value){
 function getUniformDisplayLabel(key){
   const cfg = UNIFORMS[key];
   if (!cfg) return '';
-  return state.rolled ? 'Rolled '+cfg.label : cfg.label;
+
+  if (key === 'ocp' && state.rolled){
+    return 'Rolled OCP';
+  }
+
+  return cfg.label;
 }
 
 function renderUniformSelect(){
@@ -104,7 +109,41 @@ function renderViolations(){
 
 function renderRuleRef(){
   const cfg = UNIFORMS[state.uniform];
-  document.getElementById('ruleRef').innerHTML = '<div class="rr-title">Uniform Guide — '+cfg.label+'</div><ul>'+cfg.rules.map(r=>'<li>'+r+'</li>').join('')+'</ul>';
+
+  let rules = cfg.rules;
+
+  if (state.uniform === 'ocp'){
+    rules = state.rolled
+      ? [
+          'Divisional Patch, Ranktab & Nametape included free',
+          'Rolled sleeves — Watch authorized',
+          'Skill Tabs — max 2',
+          'CSIB authorized',
+          '1 Foreign Award slot',
+          'Skill Badges — max 4 total, only 1 from Groups 1–2 combined, 1 from Group 3',
+          'Group 5 Skill Badges (Driver and Mechanic / Marksmanship) are not authorized on OCP',
+          'Driver and Mechanic Badge otherwise requires a Cavalry-designated unit',
+          'ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)'
+        ]
+      : [
+          'Divisional Patch, Ranktab & Nametape included free',
+          'Standard sleeves — no Watch authorized',
+          'Skill Tabs — max 2',
+          'CSIB authorized',
+          '1 Foreign Award slot',
+          'Skill Badges — max 4 total, only 1 from Groups 1–2 combined, 1 from Group 3',
+          'Group 5 Skill Badges (Driver and Mechanic / Marksmanship) are not authorized on OCP',
+          'Driver and Mechanic Badge otherwise requires a Cavalry-designated unit',
+          'ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)'
+        ];
+  }
+
+  document.getElementById('ruleRef').innerHTML =
+    '<div class="rr-title">Uniform Guide — '+
+    getUniformDisplayLabel(state.uniform)+
+    '</div><ul>'+
+    rules.map(r=>'<li>'+r+'</li>').join('')+
+    '</ul>';
 }
 
 function renderBadgesTab(){
@@ -164,10 +203,17 @@ function renderBadgesTab(){
     [1,2,3,4,5].forEach(g=>{
       html += '<div style="margin-bottom:8px;"><div style="font-size:10px;color:var(--tan-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Group '+g+'</div><div class="chip-wrap">';
       BADGES[g].forEach(b=>{
+        const ocpGroup5Locked = state.uniform === 'ocp' && g === 5;
         const dmbLocked = b.id === 'dmb' && !isDmbEligible();
         const aviatorLocked = cfg.aviatorOnly && b.id !== 'aab' && b.id !== 'avnb';
-        const locked = dmbLocked || aviatorLocked;
-        const label = dmbLocked ? b.name + ' <span style="opacity:.7">(Drivers only)</span>' : b.name;
+        const locked = ocpGroup5Locked || dmbLocked || aviatorLocked;
+        let label = b.name;
+
+        if (ocpGroup5Locked){
+          label += ' <span style="opacity:.7">(Not authorized on OCP)</span>';
+        } else if (dmbLocked){
+          label += ' <span style="opacity:.7">(Drivers only)</span>';
+        }
 
         html += chip(
           'badge:'+b.id,
@@ -547,6 +593,16 @@ function sanitizeForUniform(){
   } else if (!cfg.comboSkill && !cfg.aviatorOnly){
     state.skillBadges.clear();
     state.badgeTiers = {};
+  }
+
+  // OCPs do not allow Group 5 Skill Badges.
+  if (state.uniform === 'ocp'){
+    [...state.skillBadges].forEach(id=>{
+      if (BADGE_GROUP[id] === 5){
+        state.skillBadges.delete(id);
+        delete state.badgeTiers[id];
+      }
+    });
   }
 
   // ICVC Pilot — still keep only valid badges

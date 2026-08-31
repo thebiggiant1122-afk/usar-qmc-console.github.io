@@ -357,44 +357,18 @@ const UNIFORMS = {
       allowed:['ds','instr','rec','mg']
     },
 
-    watch:false,
+    watch:true,
 
     rules:[
-      'Divisional Patch, Ranktab &amp; Nametape included free',
+      'Divisional Patch, Ranktab & Nametape included free',
       'Skill Tabs — max 2',
       'CSIB authorized',
       '1 Foreign Award slot',
       'Skill Badges — max 4 total, only 1 from Groups 1–2 combined, 1 from Group 3',
-      'Driver and Mechanic Badge requires a Cavalry-designated unit; Marksmanship Badge open to anyone',
-      'ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)'
-    ]
-  },
-
-  rolledOcp:{
-    label:'Rolled OCP',
-    base:150,
-
-    skillTabs:{max:2, allowed:COMBAT_TABS},
-    csib:true,
-    foreignAward:{max:1},
-
-    skillBadges:{
-      max:4,
-      comboGroups:[[1,2,3]]
-    },
-
-    idBadges:{
-      max:2,
-      allowed:['ds','instr','rec','mg']
-    },
-
-    watch:true,
-
-    rules:[
-      'Same as Standard OCP, plus a Watch is authorized',
-      'Skill Badges — max 4 total, only 1 combined from Groups 1–3',
-      'Driver and Mechanic Badge requires a Cavalry-designated unit; Marksmanship Badge open to anyone',
-      'ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)'
+      'Group 5 Skill Badges (Driver and Mechanic / Marksmanship) are not authorized on OCP',
+      'Driver and Mechanic Badge otherwise requires a Cavalry-designated unit',
+      'ID Badges — max 2 (Drill Sergeant, Instructor, Recruiter, Master Gunner)',
+      'Watch authorized when sleeves are rolled'
     ]
   },
 
@@ -649,6 +623,18 @@ function validate(){
   } else if (!cfg.comboSkill && !cfg.aviatorOnly && state.skillBadges.size>0){
     state.skillBadges.forEach(id=>invalid.badges.add(id));
     issues.push('Skill Badges are not authorized on '+cfg.label+'.');
+  }
+  
+    // OCPs prohibit all Group 5 skill badges.
+  if (state.uniform === 'ocp'){
+    const group5 = [...state.skillBadges].filter(id => BADGE_GROUP[id] === 5);
+
+    if (group5.length){
+      group5.forEach(id => invalid.badges.add(id));
+      issues.push(
+        'Group 5 Skill Badges (Driver and Mechanic / Marksmanship) are not authorized on OCP.'
+      );
+    }
   }
 
   // Driver and Mechanic Badge — cavalry-designated units only
