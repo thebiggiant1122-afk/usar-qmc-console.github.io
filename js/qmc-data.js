@@ -191,6 +191,9 @@ const UNIT_TREE = [
       {name:'Black Hats Brigade', role:'Infantry-TU', children:[
         {name:'Orpheus Company', role:'Infantry-TU', badge:'cib'}
       ]}
+      {name:'Pegasus Brigade', role:'Infantry', children:[
+        {name:'Valkyrie Company', role:'Infantry', badge:'cib'}
+      ]}
     ]},
     {name:'101st Airborne Division', combative:'Combative', children:[
       {name:'Strike Brigade', role:'Mixed', children:[
