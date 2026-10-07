@@ -757,7 +757,7 @@ document.getElementById('watchToggle').addEventListener('click', ()=>{
   renderAll();
 });
 document.getElementById('tattooSelect').addEventListener('click', e=>{
-  if (e.target.tagName!=='BUTTON' || e.target.disabled) return;
+  if (e.target.tagName !== 'BUTTON' || e.target.disabled) return;
   state.tattoos = Number(e.target.dataset.n);
   renderAll();
 });
