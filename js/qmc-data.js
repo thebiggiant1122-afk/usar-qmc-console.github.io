@@ -763,7 +763,7 @@ function computePrice(){
   add('Foreign Devices ('+state.foreign.size+')', state.foreign.size*3);
   if (state.uniform==='classB' && state.classBItem) add('Skill Badge/Tab (metal, combined)', 3);
   if (state.watch) add('Watch', 3);
-  if (state.tattoos>0){lines.push({label:'Tattoo'+(state.tattoos>1?'s':'')+' (CJCS discontinued — free)',amt:0,free:true});}
+  if (state.tattoos>0) add('Tattoo'+(state.tattoos>1?'s':''), state.tattoos*3);
   if (state.serviceStripes>0) add('Service Stripes ('+state.serviceStripes+')', state.serviceStripes*3);
   if (state.overseasBars>0) add('Overseas Bars ('+state.overseasBars+')', state.overseasBars*3);
 
